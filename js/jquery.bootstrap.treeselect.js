@@ -115,11 +115,11 @@
                     }
                     if(number=='01234')
                     {
-                        $button.children('span').text('weekdays');
+                        $button.children('span').text('Weekdays');
                     }
                     else if(number=='56')
                     {
-                        $button.children('span').text('weekend');
+                        $button.children('span').text('Weekend');
                     }
                     else if(number=='012' || number=='0123' || number=='01234' || number=='012345' || number=='0123456' || number=='123' || number=='1234' || number=='12345' || number=='123456' || number=='234' || number=='2345' || number=='23456' || number=='345' || number=='3456' || number=='456')
                     {
