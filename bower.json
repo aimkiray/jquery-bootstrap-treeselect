@@ -1,0 +1,37 @@
+{
+  "name": "jquery-bootstrap-treeselect",
+  "description": "Create a Bootstrap button with dropdown from a select box.",
+  "main": [
+	"./js/jquery.bootstrap.treeselect.js",
+	"./css/jquery.bootstrap.treeselect.css"
+  ],
+  "authors": [
+    "SystemF"
+  ],
+  "dependencies": {
+    "jquery": "~1.4",
+    "bootstrap": "~3.3.6"
+  },
+  "license": "MIT",
+  "keywords": [
+    "jquery",
+    "bootstrap",
+    "treeselect",
+    "plugins",
+    "select",
+    "tree",
+    "dropdown",
+    "pulldown"
+  ],
+  "homepage": "https://github.com/semy/jquery-bootstrap-treeselect",
+  "moduleType": [
+    "globals"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
