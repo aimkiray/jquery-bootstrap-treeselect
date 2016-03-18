@@ -121,9 +121,13 @@
                     {
                         $button.children('span').text('Weekend');
                     }
-                    else if(number=='012' || number=='0123' || number=='01234' || number=='012345' || number=='0123456' || number=='123' || number=='1234' || number=='12345' || number=='123456' || number=='234' || number=='2345' || number=='23456' || number=='345' || number=='3456' || number=='456')
+                    else if(number=='012' || number=='0123' || number=='01234' || number=='012345'  || number=='123' || number=='1234' || number=='12345' || number=='123456' || number=='234' || number=='2345' || number=='23456' || number=='345' || number=='3456' || number=='456')
                     {
                         $button.children('span').text(buttontext[0]+' - '+buttontext[buttontext.length-1]);
+                    }
+                    else if (number=='0123456')
+                    {
+                        $button.children('span').text('Daily');
                     }
                     else if (number.length = 1)
                     {
