@@ -1,12 +1,17 @@
-(function ($) {
+;(function ($) {
 
     var defaults = {
         div: '<div class="dropdown bts_dropdown"></div>',
-        buttontext: 'Maak een keuze',
+        inputbutton: '<input id="treeSelectInput" style="width: 200px" type="text" class="form-control" />',
+        buttontext: 'Choose...',
         button: '<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"><span></span> <i class="caret"></i></button>',
-        ul: '<ul class="dropdown-menu"></ul>',
+        ul: '<ul id="treeSelectMenu" class="dropdown-menu"></ul>',
         li: '<li><label></label></li>',
-        isdaylist: false
+        isdaylist: false,
+        searchable: false, // Weather to enable search.
+        selectable: false,
+        source: [],
+        level: 1
     };
 
     $.fn.treeselect = function (options) {
@@ -15,21 +20,36 @@
 
         var $div = $(settings.div);
         var $button = $(settings.button);
+        var $inputbutton = $(settings.inputbutton);
         var $ul = $(settings.ul).click(function (e) {
             e.stopPropagation();
         });
+        var searchable = $(settings.searchable);
+        var selectable = $(settings.selectable);
+        var source = $(settings.source);
+        var level = $(settings.level);
+
+        var lastFilter = '';
 
         initialize();
 
         function initialize() {
+
             $select.after($div);
-            $div.append($button);
+
+            if (searchable) {
+                $div.append($inputbutton);
+            } else {
+                $div.append($button);
+            }
+
             $div.append($ul);
 
             createList();
             updateButtonText();
 
             $select.remove();
+
         }
 
         function createStructure(selector) {
@@ -53,13 +73,12 @@
             var $li = $(settings.li);
             $label = $li.children('label');
             $label.text(option.text);
-            
-            if ($select.attr('multiple')) {
-                $input = $('<input type="checkbox" data-shortext="'+option.text.substring(0,2)+'" name="' + $select.attr('name').replace('[]','') + '[]" value="' + option.value + '">');
-            } else {
-                $input = $('<input type="radio" data-shortext="'+option.text.substring(0,2)+'" name="' + $select.attr('name') +'" value="' + option.value + '">');
-            }
 
+            if ($select.attr('multiple')) {
+                $input = $('<input type="checkbox" data-shortext="' + option.text.substring(0, 2) + '" name="' + $select.attr('name').replace('[]', '') + '[]" value="' + option.value + '">');
+            } else {
+                $input = $('<input type="radio" data-shortext="' + option.text.substring(0, 2) + '" name="' + $select.attr('name') + '" value="' + option.value + '">');
+            }
 
             if (option.checked)
                 $input.attr('checked', 'checked');
@@ -87,68 +106,84 @@
             });
         }
 
+        // Filter the tree keyword.
+        function searchList(ulObject, keyword) {
+            if (!ulObject.is('ul') && !ulObject.is('ol')) {
+                return false;
+            }
+            var children = ulObject.children();
+            var result = false;
+            for (var i = 0; i < children.length; i++) {
+                var liObject = jQuery(children[i]);
+                if (liObject.is('li')) {
+                    var display = false;
+                    if (liObject.children().length > 0) {
+                        for (var j = 0; j < liObject.children().length; j++) {
+                            var subDisplay = searchList(jQuery(liObject.children()[j]), keyword);
+                            display = display || subDisplay;
+                        }
+                    }
+                    if (!display) {
+                        var text = liObject.text();
+                        display = text.toLowerCase().indexOf(keyword) >= 0;
+                    }
+                    liObject.css('display', display ? '' : 'none');
+                    result = result || display;
+                }
+            }
+            return result;
+        }
+
         function updateButtonText() {
             buttontext = [];
 
             $div.find('input').each(function (i, el) {
                 $checkbox = $(el);
                 if ($checkbox.is(':checked')) {
-                    if($checkbox.data('shortext')!==undefined && $checkbox.data('shortext')!='')
-                    {
-                        var shorttext = $checkbox.data('shortext')+'.';
+                    if ($checkbox.data('shortext') !== undefined && $checkbox.data('shortext') != '') {
+                        var shorttext = $checkbox.data('shortext') + '.';
                     }
-                    else
-                    {
+                    else {
                         var shorttext = $checkbox.parent().text();
                     }
                     buttontext.push(shorttext);
                 }
             });
+
             var dayarray = ['Mo.', 'Tu.', 'We.', 'Th.', 'Fr.', 'Sa.', 'Su.'];
-            if(settings.isdaylist)
-            {
+            if (settings.isdaylist) {
                 if (buttontext.length > 0) {
                     var number = '';
-                    for(var i=0; i<buttontext.length;i++)
-                    {
-                        number = number+$.inArray(buttontext[i], dayarray);
+                    for (var i = 0; i < buttontext.length; i++) {
+                        number = number + $.inArray(buttontext[i], dayarray);
                     }
-                    if(number=='01234')
-                    {
+                    if (number == '01234') {
                         $button.children('span').text('Weekdays');
                     }
-                    else if(number=='56')
-                    {
+                    else if (number == '56') {
                         $button.children('span').text('Weekend');
                     }
-                    else if(number=='012' || number=='0123' || number=='01234' || number=='012345'  || number=='123' || number=='1234' || number=='12345' || number=='123456' || number=='234' || number=='2345' || number=='23456' || number=='345' || number=='3456' || number=='456')
-                    {
-                        $button.children('span').text(buttontext[0]+' - '+buttontext[buttontext.length-1]);
+                    else if (number == '012' || number == '0123' || number == '01234' || number == '012345' || number == '123' || number == '1234' || number == '12345' || number == '123456' || number == '234' || number == '2345' || number == '23456' || number == '345' || number == '3456' || number == '456') {
+                        $button.children('span').text(buttontext[0] + ' - ' + buttontext[buttontext.length - 1]);
                     }
-                    else if (number=='0123456')
-                    {
+                    else if (number == '0123456') {
                         $button.children('span').text('Daily');
                     }
-                    else if (number.length = 1)
-                    {
+                    else if (number.length = 1) {
                         $button.children('span').text(buttontext);
                     }
-                    else if (number.length > 1)
-                    {
+                    else if (number.length > 1) {
                         $button.children('span').text(buttontext.join(', '));
                     }
-                    else
-                    {
+                    else {
                         $button.children('span').text(settings.buttontext);
                     }
                 }
-                else
-                {
+                else {
                     $button.children('span').text(settings.buttontext);
                 }
             }
-            else
-            {
+            else {
                 if (buttontext.length > 0) {
                     if (buttontext.length < 4) {
                         $button.children('span').text(buttontext.join(', '));
@@ -161,7 +196,41 @@
                     $button.children('span').text(settings.buttontext);
                 }
             }
-            
         }
+
+        $inputbutton.change(function () {
+
+            $ul.remove();
+
+            var width = $inputbutton.width() + 14 + "px";
+            var top = $inputbutton.position().top + 35;
+            var left = $inputbutton.position().left;
+
+            $ul.css({top: top, left: left, width: width});
+            $ul.attr('class', 'treeSelectMenu');
+
+            $div.append($ul);
+
+            var keyword = $inputbutton.val().toLowerCase();
+            searchList($ul, keyword);
+            return false;
+        }).keyup(function () {
+            if ($inputbutton.val() === lastFilter) return;
+            lastFilter = $inputbutton.val();
+            $inputbutton.change();
+        }).click(function () {
+            $inputbutton.change();
+        }).blur(function () {
+
+            $(document).mouseup(function(e){
+                var _con = $('#treeSelectMenu');
+                if(!_con.is(e.target) && _con.has(e.target).length === 0){ // Mark 1
+                    $ul.remove();
+                }
+            });
+
+        });
+        return this;
     };
+
 }(jQuery));
