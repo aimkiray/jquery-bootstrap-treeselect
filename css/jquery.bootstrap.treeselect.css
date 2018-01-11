@@ -5,7 +5,7 @@
 
 .bts_dropdown ul li {
     border-top: 1px dashed #EEE;
-    padding-left: 20px
+    padding-left: 25px
 }
 
 .bts_dropdown ul li label {
@@ -16,8 +16,29 @@
 
 .bts_dropdown ul li label input {
     position: absolute;
-    left: 0px;
-    top: 5px
+    left: 0;
+    top: 10px
+}
+
+.bts_dropdown ul li label .thumb {
+    font-size: large;
+    margin: -1px 0 0 -1em; /* negative margin into the padding of the li */
+    position: absolute;
+    left: 0;
+    top: 3px;
+    cursor: pointer;
+}
+
+.bts_dropdown ul li label.has-children > .thumb:after {
+    content: '▸';
+}
+
+.bts_dropdown ul li label.has-children.expanded > .thumb:after {
+    content: '▾';
+}
+
+.bts_dropdown li.collapsed > label {
+    display: none;
 }
 
 .bts_dropdown > ul {
@@ -33,7 +54,7 @@
     border-top: 0
 }
 
-.treeSelectMenu {
+.bts_dropdown > .treeSelectMenu {
     position: absolute;
     top: 100%;
     left: 0;

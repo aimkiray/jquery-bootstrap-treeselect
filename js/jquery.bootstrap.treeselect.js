@@ -2,13 +2,13 @@
 
     var defaults = {
         div: '<div class="dropdown bts_dropdown"></div>',
-        inputbutton: '<input id="treeSelectInput" style="width: 200px" type="text" class="form-control" />',
-        buttontext: 'Choose...',
+        inputbutton: '<input id="treeSelectInput" class="form-control" style="width: 200px" type="text" placeholder="Search..."/>',
+        buttontext: '',
         button: '<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"><span></span> <i class="caret"></i></button>',
         ul: '<ul id="treeSelectMenu" class="dropdown-menu"></ul>',
         li: '<li><label></label></li>',
         isdaylist: false,
-        searchable: false, // Weather to enable search.
+        searchable: false, // Weather to enable search mode.
         selectable: false,
         source: [],
         level: 1
@@ -24,10 +24,10 @@
         var $ul = $(settings.ul).click(function (e) {
             e.stopPropagation();
         });
-        var searchable = $(settings.searchable);
-        var selectable = $(settings.selectable);
-        var source = $(settings.source);
-        var level = $(settings.level);
+        var $searchable = $(settings.searchable);
+        var $selectable = $(settings.selectable);
+        var $source = $(settings.source);
+        var $level = $(settings.level);
 
         var lastFilter = '';
 
@@ -37,12 +37,11 @@
 
             $select.after($div);
 
-            if (searchable) {
+            if ($searchable) {
                 $div.append($inputbutton);
             } else {
                 $div.append($button);
             }
-
             $div.append($ul);
 
             createList();
@@ -74,21 +73,34 @@
             $label = $li.children('label');
             $label.text(option.text);
 
+            // Default sub-items
+            $label.toggleClass('has-children');
+
             if ($select.attr('multiple')) {
-                $input = $('<input type="checkbox" data-shortext="' + option.text.substring(0, 2) + '" name="' + $select.attr('name').replace('[]', '') + '[]" value="' + option.value + '">');
+                $input = $('<input type="checkbox" data-shortext="' + option.text.substring(0, 4) + '" name="' + $select.attr('name').replace('[]', '') + '[]" value="' + option.value + '">');
             } else {
-                $input = $('<input type="radio" data-shortext="' + option.text.substring(0, 2) + '" name="' + $select.attr('name') + '" value="' + option.value + '">');
+                $input = $('<input type="radio" data-shortext="' + option.text.substring(0, 4) + '" name="' + $select.attr('name') + '" value="' + option.value + '">');
             }
 
             if (option.checked)
                 $input.attr('checked', 'checked');
             $label.prepend($input);
 
+            // insert a thumb if it doesn't already exist
+            if ($label.children().filter('.thumb').length == 0) {
+                var thumb = $('<span class="thumb"></span>');
+                $label.prepend(thumb);
+            }
+
             $input.change(function () {
                 updateButtonText();
             });
 
             if (option.children.length > 0) {
+                expandListItem($label);
+
+                // $label.toggleClass('has-children');
+
                 $childul = $('<ul></ul>').appendTo($li);
 
                 $(option.children).each(function (i, child) {
@@ -99,35 +111,93 @@
             return $li;
         }
 
+        function findListItem(el) {
+            if (typeof el === 'object') return $(el);
+            return $ul.find('[id="' + el + '"]');
+        }
+
+        function toggleListItem(listItem) {
+            if (!$(listItem).hasClass('expanded')) {
+                return expandListItem(listItem);
+            }
+            else {
+                return collapseListItem(listItem);
+            }
+        }
+
+        function expandListItem(listItem) {
+            return setExpanded(listItem, true);
+        }
+
+        function collapseListItem(listItem) {
+            return setExpanded(listItem, false);
+        }
+
+        function setExpanded(listItem, expanded) {
+            var $liSet = findListItem(listItem);
+            if ($liSet.length > 1) {
+                $liSet.each(function () {
+                    setExpanded(this, expanded);
+                });
+                return;
+            }
+            if (expanded) {
+                $liSet = $($liSet).addClass('expanded').removeClass('collapsed');
+                $($liSet.data('subList')).css('height', 'auto');
+            }
+            else {
+                $liSet = $($liSet).addClass('collapsed').removeClass('expanded');
+                $($liSet.data('subList')).height(0);
+            }
+            return $liSet;
+        }
+
         function createList() {
-            $(createStructure('option:not([data-parent])')).each(function (i, option) {
-                $li = createListItem(option);
-                $ul.append($li);
-            });
+            if ($source.length === 0) {
+                $(createStructure('option:not([data-parent])')).each(function (i, option) {
+                    $li = createListItem(option);
+
+                    $ul.append($li);
+                });
+            } else {
+                $source.each(function (i, option) {
+                    $li = createListItem(option);
+
+                    $ul.append($li);
+                });
+            }
+
+        }
+
+        function isRootList(listItem) {
+            return $ul.children() == listItem;
         }
 
         // Filter the tree keyword.
-        function searchList(ulObject, keyword) {
-            if (!ulObject.is('ul') && !ulObject.is('ol')) {
+        function searchList(Obj, keyword) {
+            if (!Obj.is('ul')) {
                 return false;
             }
-            var children = ulObject.children();
+            var children = Obj.children();
             var result = false;
             for (var i = 0; i < children.length; i++) {
-                var liObject = jQuery(children[i]);
-                if (liObject.is('li')) {
+                var liObj = $(children[i]);
+                if (liObj.is('li')) {
                     var display = false;
-                    if (liObject.children().length > 0) {
-                        for (var j = 0; j < liObject.children().length; j++) {
-                            var subDisplay = searchList(jQuery(liObject.children()[j]), keyword);
+                    if (liObj.children().length > 0) {
+                        for (var j = 0; j < liObj.children().length; j++) {
+                            var subDisplay = searchList($(liObj.children()[j]), keyword);
                             display = display || subDisplay;
                         }
                     }
                     if (!display) {
-                        var text = liObject.text();
+                        var text = liObj.text();
                         display = text.toLowerCase().indexOf(keyword) >= 0;
                     }
-                    liObject.css('display', display ? '' : 'none');
+                    if (isRootList(liObj)) {
+                        // TODO
+                    }
+                    liObj.css('display', display ? '' : 'none');
                     result = result || display;
                 }
             }
@@ -186,24 +256,68 @@
             else {
                 if (buttontext.length > 0) {
                     if (buttontext.length < 4) {
-                        $button.children('span').text(buttontext.join(', '));
+                        if ($searchable) {
+                            // TODO
+                            // $inputbutton.attr('placeholder', buttontext.join(', '));
+                        } else {
+                            $button.children('span').text(buttontext.join(', '));
+                        }
                     } else if ($div.find('input').length == buttontext.length) {
-                        $button.children('span').text('Alle items selected');
+                        if ($searchable) {
+                            // $inputbutton.attr('placeholder', 'Alle items selected');
+                        } else {
+                            $button.children('span').text('Alle items selected');
+                        }
                     } else {
-                        $button.children('span').text(buttontext.length + ' items selected');
+                        if ($searchable) {
+                            // $inputbutton.attr('placeholder', buttontext.length + ' items selected');
+                        } else {
+                            $button.children('span').text(buttontext.length + ' items selected');
+                        }
                     }
                 } else {
-                    $button.children('span').text(settings.buttontext);
+                    if ($searchable) {
+                        // $inputbutton.attr('placeholder', settings.buttontext);
+                    } else {
+                        $button.children('span').text(settings.buttontext);
+                    }
                 }
             }
         }
+
+        $('#treeSelectMenu').on('click', '.thumb', function (ev) {
+
+            var $labelThumb = $(ev.currentTarget);
+
+            var subLists = $labelThumb.parent('li').filter('ol, ul, label');
+            $labelThumb.toggleClass('has-children', subLists.find('label').length > 0);
+            // $label.removeClass().addClass('has-children', subLists.find('li').length > 0);
+            // if there is a child list
+            subLists.each(function () {
+                // that's not empty
+                if ($('li', this).length == 0) {
+                    return;
+                }
+                // then this el has children
+                $labelThumb.data('subList', this);
+                // collapse the nested list
+                if ($labelThumb.hasClass('expanded')) {
+                    self.expandListItem($labelThumb);
+                }
+                else {
+                    self.collapseListItem($labelThumb);
+                }
+            });
+
+            self.toggleListItem($(ev.currentTarget).closest('label'));
+        });
 
         $inputbutton.change(function () {
 
             $ul.remove();
 
-            var width = $inputbutton.width() + 14 + "px";
-            var top = $inputbutton.position().top + 35;
+            var width = $inputbutton.width() + 20 + 'px';
+            var top = $inputbutton.position().top + 38;
             var left = $inputbutton.position().left;
 
             $ul.css({top: top, left: left, width: width});
@@ -222,9 +336,11 @@
             $inputbutton.change();
         }).blur(function () {
 
-            $(document).mouseup(function(e){
+            // Click in the empty area, hide automatically.
+            $(document).mouseup(function (e) {
                 var _con = $('#treeSelectMenu');
-                if(!_con.is(e.target) && _con.has(e.target).length === 0){ // Mark 1
+                if (!_con.is(e.target) && _con.has(e.target).length === 0) {
+                    $inputbutton.val('');
                     $ul.remove();
                 }
             });
