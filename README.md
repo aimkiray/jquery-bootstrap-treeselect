@@ -25,7 +25,7 @@ A tree jQuery plugin with search and selection capabilities, based on the open s
 
 ## Basic Usage
 
-```htmlmixed=
+```html=
 <head>
     <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
     <link href="css/jquery.bootstrap.treeselect.css" rel="stylesheet">
