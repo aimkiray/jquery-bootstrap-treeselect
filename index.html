@@ -14,9 +14,14 @@
     <script>
 
         $(function () {
-            $('#productGroup').treeselect({
-                searchable: true,
-                source: [{value: "1", text: "Group 1", checked: false, children: [{value: "2", text: "Group 2", checked: false, children: [{value: "3", text: "Group 3", checked: false, children: []}]}]}, {value: "4", text: "Group 4", checked: false, children: []}, {value: "5", text: "Group 5", checked: false, children: []}]
+            $('#productGroup1').treeselect({
+                // searchable: true,
+                source: [{"value":"1","text":"Computers","checked":false,"children":[{"value":"2","text":"Processors","checked":false,"children":[{"value":"3","text":"Nokia","checked":false,"children":[]},{"value":"3","text":"Intel","checked":false,"children":[]},{"value":"4","text":"AMD","checked":false,"children":[]}]}]},{"value":"5","text":"Phone","checked":false,"children":[{"value":"6","text":"Nokia","checked":false,"children":[]}]},{"value":"7","text":"Power","checked":false,"children":[]}]
+            });
+
+            $('#productGroup2').treeselect({
+                // searchable: true,
+                source: [{"value":"1","text":"Computers","checked":false,"children":[{"value":"2","text":"Processors","checked":false,"children":[]}]},{"value":"5","text":"Phone","checked":false,"children":[{"value":"6","text":"Nokia","checked":false,"children":[]}]}]
             });
         });
 
@@ -27,14 +32,20 @@
         }
 
         .container {
-            margin: 150px auto;
-        }
+             margin: 150px auto;
+         }
     </style>
 </head>
 <body>
 <div class="container">
-    <select multiple="multiple" id="productGroup" name="productGroupen">
-    </select>
+    <div class="row">
+        <select class="col-md-12" multiple="multiple" id="productGroup1" name="productGroupen1">
+        </select>
+
+        <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+        <select class="col-md-6" id="productGroup2" name="productGroupen2">
+        </select>
+    </div>
 </div>
 </body>
 </html>

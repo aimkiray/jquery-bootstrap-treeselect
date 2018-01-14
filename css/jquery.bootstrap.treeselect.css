@@ -14,7 +14,13 @@
     white-space: nowrap
 }
 
-.bts_dropdown ul li label input {
+.bts_dropdown ul li label input[type="radio"] {
+    position: absolute;
+    left: 0;
+    top: 10px
+}
+
+.bts_dropdown ul li label input[type="checkbox"] {
     position: absolute;
     left: 0;
     top: 10px
@@ -54,7 +60,7 @@
     border-top: 0
 }
 
-.bts_dropdown > .treeSelectMenu {
+.bts_dropdown > .tree-select-menu {
     position: absolute;
     top: 100%;
     left: 0;

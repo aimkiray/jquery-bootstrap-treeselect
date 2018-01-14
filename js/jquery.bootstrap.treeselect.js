@@ -2,10 +2,10 @@
 
     var defaults = {
         div: '<div class="dropdown bts_dropdown"></div>',
-        inputbutton: '<input id="treeSelectInput" class="form-control" style="width: 200px" type="text" placeholder="Search..."/>',
+        inputbutton: '<input id="treeSelectInput" class="form-control" type="text" placeholder="Search..."/>',
         buttontext: '',
         button: '<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"><span></span> <i class="caret"></i></button>',
-        ul: '<ul id="treeSelectMenu" class="dropdown-menu"></ul>',
+        ul: '<ul name="treeSelectMenu" class="dropdown-menu"></ul>',
         li: '<li><label></label></li>',
         isdaylist: false,
         searchable: false, // Weather to enable search mode.
@@ -285,7 +285,7 @@
             }
         }
 
-        $('#treeSelectMenu').on('click', '.thumb', function (ev) {
+        $('[name="treeSelectMenu"]').on('click', '.thumb', function (ev) {
 
             var $labelThumb = $(ev.currentTarget);
 
@@ -317,11 +317,11 @@
             $ul.remove();
 
             var width = $inputbutton.width() + 20 + 'px';
-            var top = $inputbutton.position().top + 38;
+            var top = $inputbutton.position().top + 35;
             var left = $inputbutton.position().left;
 
             $ul.css({top: top, left: left, width: width});
-            $ul.attr('class', 'treeSelectMenu');
+            $ul.attr('class', 'tree-select-menu');
 
             $div.append($ul);
 
@@ -338,8 +338,9 @@
 
             // Click in the empty area, hide automatically.
             $(document).mouseup(function (e) {
-                var _con = $('#treeSelectMenu');
+                var _con = $('[name="treeSelectMenu"]');
                 if (!_con.is(e.target) && _con.has(e.target).length === 0) {
+                    // Clear the input and remove select menu.
                     $inputbutton.val('');
                     $ul.remove();
                 }
